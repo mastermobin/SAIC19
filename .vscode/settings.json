@@ -1,6 +1,21 @@
 {
     "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools",
     "files.associations": {
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "ostream": "cpp",
+        "cctype": "cpp",
+        "ccomplex": "cpp",
+        "forward_list": "cpp",
+        "condition_variable": "cpp",
+        "atomic": "cpp",
+        "array": "cpp",
+        "chrono": "cpp",
+        "initializer_list": "cpp",
+        "mutex": "cpp",
+        "random": "cpp",
+        "future": "cpp",
+        "memory": "cpp",
+        "fstream": "cpp",
+        "functional": "cpp"
     }
 }
