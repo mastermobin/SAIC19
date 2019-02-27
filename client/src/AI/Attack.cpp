@@ -4,40 +4,16 @@
 using namespace std;
 World *ourWorld;
 
-class Intersection
-{
-  public:
-    set<int> members;
-    set<pair<int, int>> cells;
-
-  public:
-    void addCell(int row, int col)
-    {
-        if (ourWorld->getMap().isInMap(row, col))
-            cells.insert(make_pair(row, col));
-    }
-
-    void addMember(int id)
-    {
-        members.insert(id);
-    }
-
-    bool isEmpty()
-    {
-        return cells.empty();
-    }
-};
-
 Intersection createArea(int row, int col, int radius)
 {
     Intersection ans;
     for (int i = 0; i <= radius; i++)
         for (int j = 0; j <= radius - i; j++)
         {
-            ans.addCell(row + i, col + j);
-            ans.addCell(row + i, col - j);
-            ans.addCell(row - i, col + j);
-            ans.addCell(row - i, col - j);
+            ans.addCell(row + i, col + j, ourWorld);
+            ans.addCell(row + i, col - j, ourWorld);
+            ans.addCell(row - i, col + j, ourWorld);
+            ans.addCell(row - i, col - j, ourWorld);
         }
     return ans;
 }
@@ -53,7 +29,7 @@ Intersection getIntersection(Intersection in1, Intersection in2)
     Intersection ans;
     for (auto p : v_intersection)
     {
-        ans.addCell(p.first, p.second);
+        ans.addCell(p.first, p.second, ourWorld);
     }
 
     for (auto mem : in1.members)
@@ -95,7 +71,6 @@ vector<ActionProperty> BlasterAttack(World *world, Hero *hero, AbilityName abili
         if (enemy->getCurrentCell().getRow() == -1)
             continue;
 
-        cerr << "Offensive Abilities Count : " << enemy->getOffensiveAbilities().size() << endl;
         int dist = world->manhattanDistance(hero->getCurrentCell(), enemy->getCurrentCell());
         if (dist > attackRange)
             continue;

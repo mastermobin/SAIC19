@@ -1,4 +1,5 @@
 #include <Model/Interface/World.h>
+#include "Intersection.h"
 #include "ActionProperty.h"
 
 int BlasterAttack(World *world);
