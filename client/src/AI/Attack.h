@@ -1,7 +1,8 @@
 #include <Model/Interface/World.h>
+#include "ActionProperty.h"
 
 int BlasterAttack(World *world);
-int BlasterFitness(World *world);
+vector<ActionProperty> BlasterFitness(World *world, Hero *hero);
 
 int SentryAttack(World *world);
 int SentryFitness(World *world);

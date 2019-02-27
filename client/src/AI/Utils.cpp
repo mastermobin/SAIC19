@@ -73,15 +73,15 @@ void preProc(World *world)
 
 void moveTowardTheZone(World *world)
 {
-    cerr << "Move :" << endl;
+    // cerr << "-- Move " << world->getCurrentTurn() << " : " << world->getCurrentPhase() << endl;
 
     vector<Cell *> objectiveCells = world->getMap().getObjectiveZone();
     vector<Hero *> heroes = world->getMyHeroes();
 
     for (auto &hero : heroes)
     {
-        printLine();
-        cerr << getHero(hero->getName()) << endl;
+        // printLine();
+        // cerr << getHero(hero->getName()) << endl;
         int minDist = INT_MAX;
         Cell *minCell = NULL;
 
@@ -101,19 +101,18 @@ void moveTowardTheZone(World *world)
             targets[hero->getId()] = mp(minCell->getRow(), minCell->getColumn());
             targeted[minCell->getRow()][minCell->getColumn()] = hero->getId();
             Cell heroCell = hero->getCurrentCell();
-            cerr << "Hero Place : " << heroCell.getRow() << " " << heroCell.getColumn() << endl;
-            cerr << "Objective Cell : " << minCell->getRow() << " " << minCell->getColumn() << endl;
+            // cerr << "Hero Place : " << heroCell.getRow() << " " << heroCell.getColumn() << endl;
+            // cerr << "Objective Cell : " << minCell->getRow() << " " << minCell->getColumn() << endl;
             vector<Cell *> avoid;
             for (int j = 0; j < 4; j++)
             {
                 Cell *tc = new Cell(heroes[j]->getCurrentCell());
                 if (heroes[j]->getId() != hero->getId())
                     avoid.push_back(tc);
-                cerr << "Test" << tc->getRow() << " " << tc->getColumn();
             }
 
             vector<Direction> path = world->getPathMoveDirections(heroCell, *minCell, avoid);
-            cerr << "Path Size : " << path.size() << endl;
+            // cerr << "Path Size : " << path.size() << endl;
 
             if (path.size() > 0)
             {

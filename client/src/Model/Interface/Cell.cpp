@@ -1,19 +1,15 @@
 #include "Cell.h"
-#include <iostream>
 
-using namespace std;
 
-Cell::Cell(bool _isNull) : isNull(_isNull)
-{
-    if (_isNull)
-    {
+Cell::Cell(bool _isNull): isNull(_isNull) {
+    if(_isNull){
         this->_column = -1;
         this->_row = -1;
     }
 }
 
-Cell::Cell(const Cell &_cell)
-{
+
+Cell::Cell(const Cell & _cell) {
     this->_column = _cell._column;
     this->_row = _cell._row;
 
@@ -26,8 +22,35 @@ Cell::Cell(const Cell &_cell)
     this->isNull = _cell.isNull;
 }
 
-Cell &Cell::operator=(const Cell &_cell)
-{
+Cell &Cell::operator=(const Cell & _cell) {
+    this->_column = _cell._column;
+    this->_row = _cell._row;
+
+    this->_isInVision = _cell._isInVision;
+    this->_isWall = _cell._isWall;
+    this->_isInMyRespawnZone = _cell._isInMyRespawnZone;
+    this->_isInOppRespawnZone = _cell._isInOppRespawnZone;
+    this->_isInObjectiveZone = _cell._isInObjectiveZone;
+
+    this->isNull = _cell.isNull;
+
+    return *this;
+}
+
+Cell::Cell(Cell && _cell) {
+    this->_column = _cell._column;
+    this->_row = _cell._row;
+
+    this->_isInVision = _cell._isInVision;
+    this->_isWall = _cell._isWall;
+    this->_isInMyRespawnZone = _cell._isInMyRespawnZone;
+    this->_isInOppRespawnZone = _cell._isInOppRespawnZone;
+    this->_isInObjectiveZone = _cell._isInObjectiveZone;
+
+    this->isNull = _cell.isNull;
+}
+
+Cell &Cell::operator=(Cell && _cell) {
     this->_column = _cell._column;
     this->_row = _cell._row;
 
@@ -42,91 +65,54 @@ Cell &Cell::operator=(const Cell &_cell)
     return *this;
 }
 
-Cell::Cell(Cell &&_cell)
-{
-    cerr << "INTEST" << _cell._row << "--------\n";
-    this->_column = _cell._column;
-    this->_row = _cell._row;
-
-    this->_isInVision = _cell._isInVision;
-    this->_isWall = _cell._isWall;
-    this->_isInMyRespawnZone = _cell._isInMyRespawnZone;
-    this->_isInOppRespawnZone = _cell._isInOppRespawnZone;
-    this->_isInObjectiveZone = _cell._isInObjectiveZone;
-
-    this->isNull = _cell.isNull;
-}
-
-Cell &Cell::operator=(Cell &&_cell)
-{
-    this->_column = _cell._column;
-    this->_row = _cell._row;
-
-    this->_isInVision = _cell._isInVision;
-    this->_isWall = _cell._isWall;
-    this->_isInMyRespawnZone = _cell._isInMyRespawnZone;
-    this->_isInOppRespawnZone = _cell._isInOppRespawnZone;
-    this->_isInObjectiveZone = _cell._isInObjectiveZone;
-
-    this->isNull = _cell.isNull;
-
-    return *this;
-}
 
 //---------------wall------------------
-bool Cell::isWall() const
-{
+bool Cell::isWall() const {
     return _isWall;
 }
 
 //----------InMyRespawnZone------------
-bool Cell::isInMyRespawnZone() const
-{
+bool Cell::isInMyRespawnZone() const {
     return _isInMyRespawnZone;
 }
 
 //----------InOppRespawnZone-----------
-bool Cell::isInOppRespawnZone() const
-{
+bool Cell::isInOppRespawnZone() const {
     return _isInOppRespawnZone;
 }
 
 //-----------InObjectiveZone-----------
-bool Cell::isInObjectiveZone() const
-{
+bool Cell::isInObjectiveZone() const {
     return _isInObjectiveZone;
 }
 
 //--------------InVision---------------
-bool Cell::isInVision() const
-{
+bool Cell::isInVision() const {
     return _isInVision;
 }
 //---------------row-------------------
-int Cell::getRow() const
-{
+int Cell::getRow() const {
     return _row;
 }
 //--------------column-----------------
-int Cell::getColumn() const
-{
+int Cell::getColumn() const {
     return _column;
 }
 
-bool Cell::inThisPosition(int row, int column) const
-{
+bool Cell::inThisPosition(int row, int column) const{
     return this->_row == row && this->_column == column;
 }
 
-bool Cell::operator==(const Cell &_cell) const
-{
+bool Cell::operator==(const Cell &_cell) const{
     return this->inThisPosition(_cell.getRow(), _cell.getColumn()) &&
-           (this->isNull == _cell.isNull);
+            (this->isNull == _cell.isNull);
 }
 
-bool Cell::operator!=(const Cell &_cell) const
-{
+bool Cell::operator!=(const Cell &_cell) const {
     return !(*this == _cell);
 }
 
 Cell Cell::NULL_CELL(true);
+
+
+

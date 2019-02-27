@@ -2,6 +2,7 @@
 #include <bits/stdc++.h>
 #include "AI.h"
 #include "Utils.h"
+#include "Attack.h"
 
 #define mp make_pair
 #define pb push_back
@@ -15,7 +16,7 @@ void AI::preProcess(World *world)
 
 void AI::pick(World *world)
 {
-    cerr << "-pick" << endl;
+    cerr << "-- Pick" << endl;
     static int cnt = 0;
 
     switch (cnt)
@@ -46,6 +47,19 @@ void AI::move(World *world)
 
 void AI::action(World *world)
 {
+    cerr << "----- Action Step; " << world->getCurrentTurn() << " : " << world->getCurrentPhase() << endl;
     deadProc(world);
-    cerr << "-action" << endl;
+    for (Hero *hero : world->getMyHeroes())
+    {
+        if (hero->getName() == BLASTER)
+        {
+            vector<ActionProperty> movements = BlasterFitness(world, hero);
+            if (!movements.empty())
+            {
+                ActionProperty ap = movements[0];
+                cerr << ap.type << "; " << ap.targetCell.getRow() << " : " << ap.targetCell.getColumn() << endl;
+                world->castAbility(*hero, ap.type, ap.targetCell);
+            }
+        }
+    }
 }
