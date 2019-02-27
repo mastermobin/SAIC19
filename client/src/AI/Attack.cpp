@@ -2,55 +2,6 @@
 #include "Attack.h"
 
 using namespace std;
-World *ourWorld;
-
-Intersection createArea(int row, int col, int radius)
-{
-    Intersection ans;
-    for (int i = 0; i <= radius; i++)
-        for (int j = 0; j <= radius - i; j++)
-        {
-            ans.addCell(row + i, col + j, ourWorld);
-            ans.addCell(row + i, col - j, ourWorld);
-            ans.addCell(row - i, col + j, ourWorld);
-            ans.addCell(row - i, col - j, ourWorld);
-        }
-    return ans;
-}
-
-Intersection getIntersection(Intersection in1, Intersection in2)
-{
-    vector<pair<int, int>> v_intersection;
-
-    set_intersection(in1.cells.begin(), in1.cells.end(),
-                     in2.cells.begin(), in2.cells.end(),
-                     back_inserter(v_intersection));
-
-    Intersection ans;
-    for (auto p : v_intersection)
-    {
-        ans.addCell(p.first, p.second, ourWorld);
-    }
-
-    for (auto mem : in1.members)
-        ans.addMember(mem);
-
-    for (auto mem : in2.members)
-        ans.addMember(mem);
-
-    return ans;
-}
-
-bool isIntersected(Intersection in1, Intersection in2)
-{
-    vector<pair<int, int>> v_intersection;
-
-    set_intersection(in1.cells.begin(), in1.cells.end(),
-                     in2.cells.begin(), in2.cells.end(),
-                     back_inserter(v_intersection));
-
-    return !v_intersection.empty();
-}
 
 vector<ActionProperty> BlasterAttack(World *world, Hero *hero, AbilityName ability)
 {
@@ -62,7 +13,7 @@ vector<ActionProperty> BlasterAttack(World *world, Hero *hero, AbilityName abili
     int attackRange = aoe + range;
     int po = attackAbility.getPower();
 
-    Intersection throwRange = createArea(hero->getCurrentCell().getRow(), hero->getCurrentCell().getColumn(), range);
+    Intersection throwRange = createArea(hero->getCurrentCell().getRow(), hero->getCurrentCell().getColumn(), range, world);
     vector<ActionProperty> temp;
     vector<Hero *> availableEnemies;
 
@@ -82,7 +33,7 @@ vector<ActionProperty> BlasterAttack(World *world, Hero *hero, AbilityName abili
     vector<Intersection> intersection[4];
     for (unsigned int i = 0; i < availableEnemies.size(); i++)
     {
-        Intersection temp = createArea(availableEnemies[i]->getCurrentCell().getRow(), availableEnemies[i]->getCurrentCell().getColumn(), aoe);
+        Intersection temp = createArea(availableEnemies[i]->getCurrentCell().getRow(), availableEnemies[i]->getCurrentCell().getColumn(), aoe, world);
         temp.addMember(availableEnemies[i]->getId());
         intersection[0].push_back(temp);
     }
@@ -137,7 +88,6 @@ vector<ActionProperty> BlasterAttack(World *world, Hero *hero, AbilityName abili
 
 vector<ActionProperty> BlasterFitness(World *world, Hero *hero)
 {
-    ourWorld = world;
     vector<ActionProperty> ans;
     if (hero->getAbility(BLASTER_BOMB).isReady())
     {
