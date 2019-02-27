@@ -28,7 +28,9 @@ vector<ActionProperty> BlasterAttack(World *world, Hero *hero, AbilityName abili
         availableEnemies.push_back(enemy);
     }
 
-    cerr << "I Am In (" << hero->getCurrentCell().getRow() << "," << hero->getCurrentCell().getColumn() << ") And See " << availableEnemies.size() << " Enemy(es) Close !!" << endl;
+    cerr << "I Am In (" << hero->getCurrentCell().getRow() << "," << hero->getCurrentCell().getColumn() << ") And See " << availableEnemies.size()
+         << " Enemy(es) Close For " << ((ability == BLASTER_ATTACK) ? "Normal Attack" : "Bomb")
+         << "!!" << endl;
 
     vector<Intersection> intersection[4];
     for (unsigned int i = 0; i < availableEnemies.size(); i++)
@@ -78,10 +80,11 @@ vector<ActionProperty> BlasterAttack(World *world, Hero *hero, AbilityName abili
         Intersection finalIntersect = getIntersection(throwRange, intersection[k][i]);
         pair<int, int> ad = *(finalIntersect.cells.begin());
         Cell tarcell = world->getMap().getCell(ad.first, ad.second);
-        ans.push_back(ActionProperty(score / 100000, ability, hero, tarcell, score % 100000));
+        ActionProperty temp = ActionProperty(1, ability, hero, tarcell, score);
+        for (auto mem : intersection[k][i].members)
+            temp.addAffected(mem);
+        ans.push_back(temp);
     }
-
-    sort(ans.begin(), ans.end());
 
     return ans;
 }
@@ -94,6 +97,20 @@ vector<ActionProperty> BlasterFitness(World *world, Hero *hero)
         vector<ActionProperty> bombVector = BlasterAttack(world, hero, BLASTER_BOMB);
         ans.insert(ans.end(), bombVector.begin(), bombVector.end());
     }
+
+    if (hero->getAbility(BLASTER_ATTACK).isReady())
+    {
+        vector<ActionProperty> attackVec = BlasterAttack(world, hero, BLASTER_ATTACK);
+        ans.insert(ans.end(), attackVec.begin(), attackVec.end());
+    }
+
+    sort(ans.begin(), ans.end());
+    for (ActionProperty ap : ans)
+    {
+        cerr << "(" << ap.priority << "," << ap.score << ")"
+             << ";";
+    }
+    cerr << endl;
 
     return ans;
 }
