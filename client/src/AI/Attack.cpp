@@ -6,10 +6,28 @@ using namespace std;
 int damageMap[33][33] = {0};
 static int lastHeal = -1;
 static int delay[9][10] = {0};
+pair<int, int> heroPlaces[9];
+int heroDamage[9];
+int extraNeed;
+
 // static bool enoughHealth[9] = {true, true, true, true, true, true, true, true, true};
 
 void processCasts(World *world)
 {
+    for (int i = 0; i < 9; i++)
+    {
+        heroPlaces[i] = make_pair(-1, -1);
+        heroDamage[i] = 0;
+    }
+
+    extraNeed = 0;
+    for (Hero *h : world->getOppHeroes())
+        if (h->getName() == HEALER)
+            extraNeed += 30;
+
+    for (Hero *h : world->getMyHeroes())
+        heroPlaces[h->getId()] = make_pair(h->getCurrentCell().getRow(), h->getCurrentCell().getColumn());
+
     vector<CastAbility *> casts = world->getOppCastAbilities();
     for (CastAbility *c : casts)
     {
@@ -148,6 +166,14 @@ bool isInDanger(Hero *hero, int row, int col)
 
 //Blaster ------------------------------------------------------------------------------------------------
 
+void addDamageToAffected(vector<int> ids, int pow)
+{
+    for (int id : ids)
+    {
+        heroDamage[id] += pow;
+    }
+}
+
 vector<ActionProperty> BlasterAttack(World *world, Hero *hero, AbilityName ability)
 {
     vector<ActionProperty> ans;
@@ -170,6 +196,8 @@ vector<ActionProperty> BlasterAttack(World *world, Hero *hero, AbilityName abili
     for (auto &enemy : enemies)
     {
         if (enemy->getCurrentCell().getRow() == -1)
+            continue;
+        if (heroDamage[enemy->getId()] + (enemy->getMaxHP() - enemy->getCurrentHP()) >= enemy->getMaxHP() + extraNeed)
             continue;
 
         int dist = world->manhattanDistance(hero->getCurrentCell(), enemy->getCurrentCell());
@@ -221,13 +249,15 @@ vector<ActionProperty> BlasterAttack(World *world, Hero *hero, AbilityName abili
             if (po > world->getHero(mem).getCurrentHP())
                 score += 100000 + world->getHero(mem).getCurrentHP();
             else
-                score += po;
+            {
+                score += 500 - world->getHero(mem).getCurrentHP();
+            }
         }
 
         Intersection finalIntersect = getIntersection(throwRange, intersection[k][i]);
         pair<int, int> ad = *(finalIntersect.cells.begin());
         Cell tarcell = world->getMap().getCell(ad.first, ad.second);
-        ActionProperty temp = ActionProperty(1, ability, hero, tarcell, score);
+        ActionProperty temp = ActionProperty(6 - k, ability, hero, tarcell, score);
         for (auto mem : intersection[k][i].members)
             temp.addAffected(mem);
         ans.push_back(temp);
@@ -369,10 +399,38 @@ void drawIntersection(Intersection in, World *world)
     cerr << "-------------------------------------------------" << endl;
 }
 
+void updatePlace(Direction dir, int id)
+{
+    int r = heroPlaces[id].first;
+    int c = heroPlaces[id].second;
+
+    if (dir == UP)
+        heroPlaces[id] = make_pair(r - 1, c);
+    else if (dir == DOWN)
+        heroPlaces[id] = make_pair(r + 1, c);
+    else if (dir == RIGHT)
+        heroPlaces[id] = make_pair(r, c + 1);
+    else if (dir == LEFT)
+        heroPlaces[id] = make_pair(r, c - 1);
+
+    // cerr << "(" << r << "," << c << ") -> (" << heroPlaces[id].first << "," << heroPlaces[id].second << ")" << endl;
+}
+
+void printPlaces(World *world)
+{
+    for (Hero *h : world->getMyHeroes())
+    {
+        cerr << "Place " << heroPlaces[h->getId()].first << " , " << heroPlaces[h->getId()].second << endl;
+        cerr << "---------------------------" << endl;
+    }
+}
+
 Direction BlasterMove(World *world, Hero *hero)
 {
     if (!hero->getCurrentCell().isInObjectiveZone())
         return moveTowardTheZone(world, hero);
+
+    // printPlaces(world);
 
     vector<ActionProperty> ans;
     vector<Hero *> enemies = world->getOppHeroes();
@@ -382,6 +440,8 @@ Direction BlasterMove(World *world, Hero *hero)
     int po = attackAbility.getPower();
 
     Intersection throwRange;
+    Intersection guy;
+    guy.addCell(hero->getCurrentCell().getRow(), hero->getCurrentCell().getColumn());
     throwRange = createArea(hero->getCurrentCell().getRow(), hero->getCurrentCell().getColumn(), range, world);
     vector<ActionProperty> temp;
     vector<Hero *> availableEnemies;
@@ -391,7 +451,7 @@ Direction BlasterMove(World *world, Hero *hero)
     for (Hero *h : world->getMyHeroes())
     {
         if (h->getId() != hero->getId())
-            riskiPoints = addIntersection(riskiPoints, createArea(h->getCurrentCell().getRow(), h->getCurrentCell().getColumn(), 3, world));
+            riskiPoints = addIntersection(riskiPoints, createArea(heroPlaces[h->getId()].first, heroPlaces[h->getId()].second, 3, world));
     }
 
     for (auto &enemy : enemies)
@@ -464,7 +524,7 @@ Direction BlasterMove(World *world, Hero *hero)
 
         if (finalIn.isEmpty())
             continue;
-        if (isIntersected(throwRange, finalIn))
+        if (isIntersected(throwRange, finalIn) && !isIntersected(guy, riskiPoints))
         {
             cerr << "I Am In (" << hero->getCurrentCell().getRow() << "," << hero->getCurrentCell().getColumn() << ") And" << endl;
             cerr << " Middle Case" << endl;
@@ -498,6 +558,7 @@ Direction BlasterMove(World *world, Hero *hero)
                 {
                     delete avoid[co];
                 }
+                updatePlace(path[0], hero->getId());
                 return path[0];
             }
         }
@@ -532,6 +593,7 @@ Direction BlasterMove(World *world, Hero *hero)
             {
                 delete avoid[co];
             }
+            updatePlace(path[0], hero->getId());
             return path[0];
         }
     }

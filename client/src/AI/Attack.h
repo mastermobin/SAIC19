@@ -9,6 +9,9 @@
 bool isInDanger(Hero *hero, int row, int col);
 
 void setPlace(World *world, Hero *hero);
+void updatePlace(Direction dir, int id);
+void printPlaces(World *world);
+void addDamageToAffected(vector<int> ids, int pow);
 void processCasts(World *world);
 void decreaseCooldown();
 void createDamageMap(World *world);

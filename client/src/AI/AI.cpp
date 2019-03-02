@@ -43,7 +43,7 @@ void AI::pick(World *world)
 
 void AI::move(World *world)
 {
-    cerr << "----- Move Step; " << world->getCurrentTurn() - 4 << " : " << world->getCurrentPhase() << endl;
+    cerr << "----- Move Step; " << world->getCurrentTurn() - 4 << " : " << world->getMovePhaseNum() << endl;
 
     milliseconds ms1 = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     deadProc(world);
@@ -52,23 +52,10 @@ void AI::move(World *world)
 
     for (Hero *hero : world->getMyHeroes())
     {
-        if (hero->getName() == BLASTER)
+        Direction movement = BlasterMove(world, hero);
+        if (movement != NULL_DIRECTION)
         {
-            Direction movement = BlasterMove(world, hero);
-            if (movement != NULL_DIRECTION)
-                world->moveHero(*hero, movement);
-        }
-        else if (hero->getName() == HEALER)
-        {
-            Direction movement = HealerMove(world, hero);
-            if (movement != NULL_DIRECTION)
-                world->moveHero(*hero, movement);
-        }
-        else
-        {
-            Direction movement = moveTowardTheZone(world, hero);
-            if (movement != NULL_DIRECTION)
-                world->moveHero(*hero, movement);
+            world->moveHero(*hero, movement);
         }
     }
     milliseconds ms2 = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
@@ -77,7 +64,7 @@ void AI::move(World *world)
 
 void AI::action(World *world)
 {
-    cerr << "----- Action Step; " << world->getCurrentTurn() - 4 << " : " << world->getCurrentPhase() << endl;
+    cerr << "----- Action Step; " << world->getCurrentTurn() - 4 << " : " << world->getMovePhaseNum() << endl;
     milliseconds ms1 = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
     deadProc(world);
     decreaseCooldown();
@@ -91,6 +78,7 @@ void AI::action(World *world)
             if (!movements.empty())
             {
                 ActionProperty ap = movements[0];
+                addDamageToAffected(ap.affected, ap.originHero->getAbility(ap.type).getPower());
                 cerr << "I'm Using " << ((ap.type == HEALER_ATTACK) ? "Normal Attack" : ((ap.type == HEALER_HEAL) ? "Heal" : "Dodge")) << " At ("
                      << ap.targetCell.getRow() << "," << ap.targetCell.getColumn() << ") And ";
                 for (int e : ap.affected)
