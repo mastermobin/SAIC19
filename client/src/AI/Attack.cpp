@@ -465,8 +465,11 @@ Direction BlasterMove(World *world, Hero *hero)
         if (finalIn.isEmpty())
             continue;
         if (isIntersected(throwRange, finalIn))
+        {
+            cerr << "I Am In (" << hero->getCurrentCell().getRow() << "," << hero->getCurrentCell().getColumn() << ") And" << endl;
+            cerr << " Middle Case" << endl;
             return NULL_DIRECTION;
-
+        }
         pair<int, Intersection> temp = make_pair(score, finalIn);
         options.push_back(temp);
     }
@@ -537,6 +540,9 @@ Direction BlasterMove(World *world, Hero *hero)
     {
         delete avoid[co];
     }
+
+    cerr << "I Am In (" << hero->getCurrentCell().getRow() << "," << hero->getCurrentCell().getColumn() << ") And" << endl;
+    cerr << " End Case" << endl;
     return NULL_DIRECTION;
 }
 
