@@ -33,7 +33,9 @@ public:
       }
     }
     else
+    {
       return priority < rhs.priority;
+    }
   }
 };
 
